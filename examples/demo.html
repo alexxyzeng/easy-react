@@ -7,7 +7,7 @@
     <script src="../src/react-dom.min.js" ></script>
     <script src="../src/browser.min.js" ></script>
     <script type="text/javascript" src="../src/event.js"></script>
-    <script type="text/javascript" src="../src/action/user_action.js"></script>
+    <script type="text/javascript" src="action/user_action.js"></script>
     <script type="text/javascript" src="../src/datacomm.js"></script>
 
     <style>
@@ -33,6 +33,11 @@
     <div id="content"></div>
 
 <script type="text/babel">
+    //  注册action
+    var __dc = new DataComm();
+    DataComm.sharedInstance = __dc;
+    DataComm.sharedInstance.registerAction(UserAction);
+    //  扩展的BaseComp,自定义组件通过集成该类来实现自定义方法
     class BaseComp extends React.Component {
         constructor(props) {
             super(props);

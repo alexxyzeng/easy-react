@@ -138,8 +138,3 @@ function DataComm() {
     }
 }
 
-var __dc = new DataComm();
-
-DataComm.sharedInstance = __dc;
-
-DataComm.sharedInstance.registerAction(UserAction);
