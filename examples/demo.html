@@ -93,7 +93,7 @@
             this.setState(obj);
         }
     }
-    //  容器
+    //  创建继承自BaseComp的自定义组件,拥有在BaseComp中继承的方法
     class ContentBox extends BaseComp {
         render() {
             return (
@@ -107,16 +107,13 @@
 
     //  输入框
     class InputBox extends BaseComp {
-        handleInfo(e) {
-            var value = e.target.value;
-            console.log(e.target.type);
-        }
         confirm() {
             var ins = this;
             var name = ins.refs.name.value;
             var gender = ins.refs.gender.value;
             var age = ins.refs.age.value;
             if (name || gender || age) {
+                //  exec() 执行UserAction中的getInfo方法
                 this.exec("user.getInfo", name, gender, age);
             } else {
                 alert("输入的数据为空，请重新输入");
@@ -146,6 +143,7 @@
             this.state = { user: {name: "", gender: "", age: "" }}
         }
         componentWillMount() {
+            // bindData() 将storage[user]绑定到this.state.user
             this.bindData("user", "user");
         }
         componentDidMount() {
