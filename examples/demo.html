@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>demo</title>
+    <script src="../src/react.min.js" ></script>
+    <script src="../src/react-dom.min.js" ></script>
+    <script src="../src/browser.min.js" ></script>
+    <script type="text/javascript" src="../src/event.js"></script>
+    <script type="text/javascript" src="../src/action/user_action.js"></script>
+    <script type="text/javascript" src="../src/datacomm.js"></script>
+
+    <style>
+        fieldset {
+            margin: 20px;
+            padding: 15px;
+        }
+        input {
+            margin-left: -20px;
+            margin-right: 20px;
+            height: 20px;
+        }
+        button {
+            height: 20px;
+            margin-left: 10px;
+        }
+        span {
+            margin-right: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div id="content"></div>
+
+<script type="text/babel">
+    class BaseComp extends React.Component {
+        constructor(props) {
+            super(props);
+
+            this.state = {};
+        }
+
+        exec(action) {
+            var group = action.split(".")[0];
+            var cmd = action.split(".")[1];
+            var act = DataComm.sharedInstance.actions[group];
+            var args = Array.prototype.slice.call(arguments);
+            args.shift();
+            act[cmd].apply(act, args);
+        }
+
+        subData(property, handler) {
+            return DataComm.sharedInstance.subscribe(property, handler);
+        }
+
+        bindData(property, stateProperty) {
+
+            var ins = this;
+            var currentData = this.subData(property, function(data) {
+                ins.__syncData(stateProperty, data);
+            });
+            ins.__syncData(stateProperty, currentData);
+        }
+
+        __syncData(stateProperty, data) {
+            var obj = {};
+            if (stateProperty == "*") {
+                obj = { ...data };
+            } else {
+                var stateProperties = stateProperty.split(".");
+                if (stateProperties.length > 1) {
+                    var val = this.state;
+                    for (var i = 0; i < stateProperties.length - 1; i++) {
+                        var propName = stateProperties[i];
+                        var temp = val[propName];
+                        if (!temp) val[propName] = {};
+                        val = val[propName];
+                    }
+                    val[stateProperties[stateProperties.length - 1]] = data;
+
+                    obj = {};
+                    obj[stateProperties[0]] = this.state[stateProperties[0]];
+                } else {
+                    obj[stateProperty] = data;
+                }
+
+            }
+            this.setState(obj);
+        }
+    }
+    //  容器
+    class ContentBox extends BaseComp {
+        render() {
+            return (
+                    <div className="contentBox">
+                    <InputBox />
+                    <ResultBox />
+                    </div>
+            );
+        }
+    }
+
+    //  输入框
+    class InputBox extends BaseComp {
+        handleInfo(e) {
+            var value = e.target.value;
+            console.log(e.target.type);
+        }
+        confirm() {
+            var ins = this;
+            var name = ins.refs.name.value;
+            var gender = ins.refs.gender.value;
+            var age = ins.refs.age.value;
+            if (name || gender || age) {
+                this.exec("user.getInfo", name, gender, age);
+            } else {
+                alert("输入的数据为空，请重新输入");
+            }
+        }
+        componentDidMount() {
+            this.confirm();
+        }
+
+        render() {
+            return (
+                <fieldset className="inputBox">
+                    <legend>输入信息</legend>
+                    <span>姓名: </span><input type="text" placeholder="请输入姓名" defaultValue="Alex" ref="name" />
+                    <span>性别: </span><input type="text" placeholder="请输入男/女" defaultValue="男" ref="gender" />
+                    <span>年龄: </span><input type="text" placeholder="请输入年龄数字" defaultValue="28" ref="age" />
+                    <button onClick={this.confirm.bind(this)}>确认</button>
+                </fieldset>
+            );
+        }
+    }
+
+    // 结果显示
+    class ResultBox extends BaseComp {
+        constructor(props) {
+            super(props);
+            this.state = { user: {name: "", gender: "", age: "" }}
+        }
+        componentWillMount() {
+            this.bindData("user", "user");
+        }
+        componentDidMount() {
+            this.bindData("user", "user");
+        }
+        render() {
+            return (
+                <fieldset className="resultBox">
+                    <legend>个人信息</legend>
+                    <span>姓名: { this.state.user.name }</span>
+                    <span>性别: { this.state.user.gender }</span>
+                    <span>年龄: { this.state.user.age }</span>
+                </fieldset>
+            );
+        }
+    }
+
+    ReactDOM.render (
+    <ContentBox />,
+            document.getElementById("content")
+    );
+</script>
+</body>
+</html>
+
