@@ -138,3 +138,6 @@ function DataComm() {
     }
 }
 
+__dc = new DataComm();
+
+DataComm.sharedInstance = __dc;

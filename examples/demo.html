@@ -33,9 +33,7 @@
     <div id="content"></div>
 
 <script type="text/babel">
-    //  注册action
-    var __dc = new DataComm();
-    DataComm.sharedInstance = __dc;
+    //  通过DataComm的单例注册action
     DataComm.sharedInstance.registerAction(UserAction);
     //  扩展的BaseComp,自定义组件通过集成该类来实现自定义方法
     class BaseComp extends React.Component {
@@ -140,20 +138,27 @@
     class ResultBox extends BaseComp {
         constructor(props) {
             super(props);
-            this.state = { user: {name: "", gender: "", age: "" }}
+            this.state = { user: { gender: "", age: "" }, name: ""}
         }
+        // bindData()可以绑定指定层级元素数据到组件state中指定层级元素
         componentWillMount() {
-            // bindData() 将storage[user]绑定到this.state.user
+            // 绑定storage[user]到this.state.user
             this.bindData("user", "user");
+
         }
         componentDidMount() {
-            this.bindData("user", "user");
+            //  绑定storage[user][age]到this.state.user.age
+            this.bindData("user.age", "user.age");
+            //  绑定storage[user][gender]到this.state.user.gender
+            this.bindData("user.gender", "user.gender");
+            //  绑定storage[user][name]到this.state.name
+            this.bindData("user.name", "name");
         }
         render() {
             return (
                 <fieldset className="resultBox">
                     <legend>个人信息</legend>
-                    <span>姓名: { this.state.user.name }</span>
+                    <span>姓名: { this.state.name }</span>
                     <span>性别: { this.state.user.gender }</span>
                     <span>年龄: { this.state.user.age }</span>
                 </fieldset>
