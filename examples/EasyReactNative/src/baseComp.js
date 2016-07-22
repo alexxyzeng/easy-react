@@ -6,10 +6,10 @@
  */
 //  创建自定义的基础组件，实现自定义方法
 import React, { Component } from 'react';
+
 class BaseComp extends Component {
     constructor(props) {
         super(props);
-
         this.state = {};
     }
     /*
@@ -21,7 +21,7 @@ class BaseComp extends Component {
         //  将传递的参数action，拆解传递给对应的方法
         var group = arguments[0].split(".")[0];
         var cmd = arguments[0].split(".")[1];
-        var act = DataComm.sharedInstance.actions[group];
+        var act = __dc.actions[group];
         //  传递给user-->login方法的参数，此处为空
         var args = Array.prototype.slice.call(arguments);
         args.shift();
@@ -33,7 +33,10 @@ class BaseComp extends Component {
      * handler:  回调函数
      * */
     subData(property, handler) {
-        return DataComm.sharedInstance.subscribe(property, handler);
+        return __dc.subscribe(property, handler);
+    }
+    unsData(property) {
+        return __dc.unsubscribe(property);
     }
     /*
      * 绑定storage数据到组件state中
@@ -50,6 +53,16 @@ class BaseComp extends Component {
         });
         //  先设置一个当前数据
         ins.__syncData(stateProperty, currentData);
+    }
+    /*
+    * 解除对数据的绑定
+    *
+    *
+    *
+    *
+    * */
+    unbindData(property) {
+        this.unsData(property);
     }
     /*
      * 同步数据到组件state中
